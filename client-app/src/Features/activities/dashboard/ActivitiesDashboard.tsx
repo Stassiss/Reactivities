@@ -1,31 +1,32 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { Grid } from 'semantic-ui-react'
 import ActivitieList from './ActivitieList'
-import ActivitiyDetails from '../details/ActivitiyDetails'
-import ActivityForm from '../form/ActivityForm'
 import { observer } from 'mobx-react-lite'
-import ActivityStore from "../../../App/stores/activityStore";
+import LoadingComponent from '../../../App/Layout/LoadingComponent'
+import ActivityStore from "../../../../src/App/stores/activityStore";
+
 
 
 const ActivitiesDashboard: React.FC = () => {
-    const activityStore = useContext(ActivityStore);
-    const { editMode, selectedActivity } = activityStore;
+    const activityStore = useContext(ActivityStore)
+
+    useEffect(() => {
+
+        activityStore.loadActivities();
+        // add empty array to prevent useEffect go loop
+    }, [activityStore]);
+
+    if (activityStore.loadingInitial) {
+        return <LoadingComponent content="Loading activities..." />
+    }
+
     return (
         <Grid>
             <Grid.Column width={10}>
                 <ActivitieList />
             </Grid.Column>
             <Grid.Column width={6}>
-                {selectedActivity && !editMode && (
-                    <ActivitiyDetails
-                    />
-                )}
-                {editMode &&
-                    <ActivityForm
-                        // eslint-disable-next-line
-                        key={selectedActivity && selectedActivity.id || 0}
-                        activity={selectedActivity!}
-                    />}
+                <h1>Activity filters</h1>
             </Grid.Column>
         </Grid>
     )
